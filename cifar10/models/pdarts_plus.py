@@ -1,6 +1,6 @@
 from torch.autograd import Variable
 from cifar10.models.operations import *
-from cifar10.models.genotypes import *
+import cifar10.models.genotypes as genotypes
 
 
 def drop_path(x, drop_prob):
