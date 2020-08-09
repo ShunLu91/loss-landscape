@@ -181,4 +181,6 @@ def pdarts_plus_model(model_name):
     auxiliary = True
     stage_layers = [8, 14, 20]
     geno_list = eval("genotypes.%s" % model_name)
-    return NetworkCIFAR(init_channels, CLASSES, layers, auxiliary, geno_list, stage_layers)
+    model = NetworkCIFAR(init_channels, CLASSES, layers, auxiliary, geno_list, stage_layers)
+    model.drop_path_prob = 0.2
+    return
