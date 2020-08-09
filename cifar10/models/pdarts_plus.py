@@ -178,7 +178,7 @@ def pdarts_plus_model(model_name):
     init_channels = 36
     CLASSES = 10
     layers = 20
-    auxiliary = False
+    auxiliary = True
     stage_layers = [8, 14, 20]
     geno_list = eval("genotypes.%s" % model_name)
     model = NetworkCIFAR(init_channels, CLASSES, layers, auxiliary, geno_list, stage_layers)
