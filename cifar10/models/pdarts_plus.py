@@ -161,9 +161,9 @@ class NetworkCIFAR(nn.Module):
         self.global_pooling = nn.AdaptiveAvgPool2d(1)
         self.classifier = nn.Linear(C_prev, num_classes)
 
-    def forward(self, x):
+    def forward(self, input):
         logits_aux = None
-        s0 = s1 = self.stem(x)
+        s0 = s1 = self.stem(input)
         for i, cell in enumerate(self.cells):
             s0, s1 = s1, cell(s0, s1, self.drop_path_prob)
             if i == 2 * self._layers // 3:
@@ -181,5 +181,4 @@ def pdarts_plus_model(model_name):
     auxiliary = True
     stage_layers = [8, 14, 20]
     geno_list = eval("genotypes.%s" % model_name)
-    model = NetworkCIFAR(init_channels, CLASSES, layers, auxiliary, geno_list, stage_layers)
-    return model
+    return NetworkCIFAR(init_channels, CLASSES, layers, auxiliary, geno_list, stage_layers)
