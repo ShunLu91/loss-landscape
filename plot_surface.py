@@ -24,6 +24,7 @@ import model_loader
 import scheduler
 import mpi4pytorch as mpi
 
+
 def email_sender(result, config):
     import smtplib
     import getpass
@@ -251,6 +252,9 @@ if __name__ == '__main__':
     parser.add_argument('--show', action='store_true', default=False, help='show plotted figures')
     parser.add_argument('--log', action='store_true', default=False, help='use log scale for loss values')
     parser.add_argument('--plot', action='store_true', default=False, help='plot figures after computation')
+
+    parser.add_argument('--exp', type=str, required=True, help='experiment name')
+    parser.add_argument('--gpu', type=str, default=None, help='gpu device id')
 
     args = parser.parse_args()
 
