@@ -182,5 +182,6 @@ def pdarts_plus_model(model_name):
     stage_layers = [8, 14, 20]
     geno_list = eval("genotypes.%s" % model_name)
     model = NetworkCIFAR(init_channels, CLASSES, layers, auxiliary, geno_list, stage_layers)
+    # re-train末期，dp逐渐上升至0.2
     model.drop_path_prob = 0.2
     return model

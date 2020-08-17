@@ -23,7 +23,8 @@ import plot_1D
 import model_loader
 import scheduler
 import mpi4pytorch as mpi
-
+import torchvision.datasets as dset
+from cifar10.dataloader import _data_transforms_cifar10
 
 def email_sender(result, config):
     import smtplib
@@ -108,11 +109,11 @@ def setup_surface_file(args, surf_file, dir_file):
     f['dir_file'] = dir_file
 
     # Create the coordinates(resolutions) at which the function is evaluated
-    xcoordinates = np.linspace(args.xmin, args.xmax, num=args.xnum)
+    xcoordinates = np.linspace(args.xmin, args.xmax, num=int(args.xnum))
     f['xcoordinates'] = xcoordinates
 
     if args.y:
-        ycoordinates = np.linspace(args.ymin, args.ymax, num=args.ynum)
+        ycoordinates = np.linspace(args.ymin, args.ymax, num=int(args.ynum))
         f['ycoordinates'] = ycoordinates
     f.close()
 
@@ -330,16 +331,33 @@ if __name__ == '__main__':
 
     mpi.barrier(comm)
 
-    trainloader, testloader = dataloader.load_dataset(args.dataset, args.datapath,
-                                args.batch_size, args.threads, args.raw_data,
-                                args.data_split, args.split_idx,
-                                args.trainloader, args.testloader)
+    # trainloader, testloader = dataloader.load_dataset(args.dataset, args.datapath,
+    #                             args.batch_size, args.threads, args.raw_data,
+    #                             args.data_split, args.split_idx,
+    #                             args.trainloader, args.testloader)
+
+    train_transform, valid_transform = _data_transforms_cifar10(args)
+    train_data = dset.CIFAR10(root=args.dataset + '/data', train=True, download=True, transform=train_transform)
+    num_train = len(train_data)
+    indices = list(range(num_train))
+    split = int(np.floor(0.5 * num_train))
+
+    trainloader = torch.utils.data.DataLoader(
+        train_data, batch_size=args.batch_size,
+        sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[:split]),
+        pin_memory=True, num_workers=2)
+
+    validloader = torch.utils.data.DataLoader(
+        train_data, batch_size=args.batch_size,
+        sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[split:num_train]),
+        pin_memory=True, num_workers=2)
 
     #--------------------------------------------------------------------------
     # Start the computation
     #--------------------------------------------------------------------------
     # crunch(surf_file, net, w, s, d, trainloader, 'train_loss', 'train_acc', comm, rank, args)
-    crunch(surf_file, net, w, s, d, testloader, 'test_loss', 'test_acc', comm, rank, args)
+    crunch(surf_file, net, w, s, d, validloader, 'val_loss', 'val_acc', comm, rank, args)
+    # crunch(surf_file, net, w, s, d, testloader, 'test_loss', 'test_acc', comm, rank, args)
 
     #--------------------------------------------------------------------------
     # Plot figures
@@ -348,7 +366,7 @@ if __name__ == '__main__':
         if args.y and args.proj_file:
             plot_2D.plot_contour_trajectory(surf_file, dir_file, args.proj_file, 'test_acc', args.show)
         elif args.y:
-            plot_2D.plot_2d_contour(surf_file, 'test_acc', args.vmin, args.vmax, args.vlevel, args.show)
+            plot_2D.plot_2d_contour(surf_file, 'val_acc', args.vmin, args.vmax, args.vlevel, args.show)
         else:
             plot_1D.plot_1d_loss_err(surf_file, args.xmin, args.xmax, args.loss_max, args.log, args.show)
 

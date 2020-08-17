@@ -81,6 +81,15 @@ def get_random_states(states):
     return [torch.randn(w.size()) for k, w in states.items()]
 
 
+def get_random_alpha(alpha):
+    """
+        Produce a random direction that is a list of random Gaussian tensors
+        with the same shape as the network's state_dict(), so one direction entry
+        per weight, including BN's running_mean/var.
+    """
+    return [torch.randn(a.size()) for a in alpha]
+
+
 def get_diff_weights(weights, weights2):
     """ Produce a direction from 'weights' to 'weights2'."""
     return [w2 - w for (w, w2) in zip(weights, weights2)]
@@ -155,6 +164,15 @@ def normalize_directions_for_states(direction, states, norm='filter', ignore='ig
             normalize_direction(d, w, norm)
 
 
+def normalize_directions_for_alpha(direction, alpha, norm='filter'):
+    """
+        The normalization scales the direction entries according to the entries of weights.
+    """
+    assert(len(direction) == len(alpha))
+    for d, w in zip(direction, alpha):
+        normalize_direction(d, w, norm)
+
+
 def ignore_biasbn(directions):
     """ Set bias and bn parameters in directions to zero """
     for d in directions:
@@ -217,6 +235,10 @@ def create_random_direction(net, dir_type='weights', ignore='biasbn', norm='filt
         states = net.state_dict() # a dict of parameters, including BN's running mean/var.
         direction = get_random_states(states)
         normalize_directions_for_states(direction, states, norm, ignore)
+    elif dir_type == 'alpha':
+        alpha = net.arch_parameters() # a dict of parameters, including BN's running mean/var.
+        direction = get_random_alpha(alpha)
+        normalize_directions_for_alpha(direction, alpha, norm)
 
     return direction
 

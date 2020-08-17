@@ -4,6 +4,8 @@ import cifar10.models.vgg as vgg
 import cifar10.models.resnet as resnet
 import cifar10.models.densenet as densenet
 import cifar10.models.pdarts_plus as pdarts_plus
+import cifar10.models.pdarts_plus_super as pdarts_plus_super
+
 
 # map between model name and function
 models = {
@@ -38,6 +40,7 @@ models = {
     'wrn110_4_noshort'      : resnet.WRN110_4_noshort,
     'pp5'                   : pdarts_plus.pdarts_plus_model('pp5'),
     'pp7'                   : pdarts_plus.pdarts_plus_model('pp7'),
+    'pp7_super'             : pdarts_plus_super.pdarts_plus_super('pp7')
 }
 
 def load(model_name, model_file=None, data_parallel=False):
@@ -52,7 +55,7 @@ def load(model_name, model_file=None, data_parallel=False):
         assert os.path.exists(model_file), model_file + " does not exist."
         stored = torch.load(model_file, map_location=lambda storage, loc: storage)
         if 'state_dict' in stored.keys():
-            net.load_state_dict(stored['state_dict'])
+            net.load_state_dict(stored['state_dict'], strict=False)
         else:
             net.load_state_dict(stored)
 

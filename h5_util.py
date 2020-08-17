@@ -16,7 +16,11 @@ def write_list(f, name, direction):
     grp = f.create_group(name)
     for i, l in enumerate(direction):
         if isinstance(l, torch.Tensor):
-            l = l.numpy()
+            try:
+                l = l.numpy()
+            except:
+                l = l.detach().numpy()
+
         grp.create_dataset(str(i), data=l)
 
 
