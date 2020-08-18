@@ -63,7 +63,8 @@ def set_alphas(net, weights, directions=None, step=None):
             print('p:', p.device)
             print('w:', p.device)
             print('d:', p.device)
-            print('td:', torch.Tensor(d).type(type(w.data).device))
+            print('wd:', type(w.data))
+            print('td:', type(torch.Tensor(d).type(type(w.data))))
             p.data = w.data + torch.Tensor(d).type(type(w.data))
 
 
