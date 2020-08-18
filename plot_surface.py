@@ -303,7 +303,7 @@ if __name__ == '__main__':
     #--------------------------------------------------------------------------
     net = model_loader.load(args.dataset, args.model, args.model_file)
     if 'super' in args.model:
-        w = net._arch_parameters # initial parameters
+        w = net._arch_parameters.cuda() # initial parameters
     else:
         w = net_plotter.get_weights(net) # initial parameters
 
