@@ -210,8 +210,8 @@ class Network(nn.Module):
         #     self._arch_parameters = [
         #         self.alphas_normal,
         #     ]
-        self.alphas_normal = nn.Parameter(torch.FloatTensor(1e-3 * np.random.randn(k, num_ops)))
-        self.alphas_reduce = nn.Parameter(torch.FloatTensor(1e-3 * np.random.randn(k, num_ops)))
+        self.alphas_normal = nn.Parameter(torch.FloatTensor(1e-3 * np.random.randn(k, num_ops)).cuda())
+        self.alphas_reduce = nn.Parameter(torch.FloatTensor(1e-3 * np.random.randn(k, num_ops)).cuda())
         self._arch_parameters = [
             self.alphas_normal,
             self.alphas_reduce,
