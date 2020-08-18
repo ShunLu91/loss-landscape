@@ -5,6 +5,7 @@
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import pyplot as plt
 from matplotlib import cm
+import matplotlib as mpl
 import h5py
 import argparse
 import numpy as np
@@ -70,6 +71,9 @@ def plot_2d_contour(surf_file, surf_name='train_loss', vmin=0.1, vmax=10, vlevel
     fig = plt.figure()
     ax = Axes3D(fig)
     surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+    # ax.set_zlim(60, 81)
+    ax.set_zlim3d(60, 81)
+
     fig.colorbar(surf, shrink=0.5, aspect=5)
     fig.savefig(surf_file + '_' + surf_name + '_3dsurface.pdf', dpi=300,
                 bbox_inches='tight', format='pdf')
@@ -181,7 +185,6 @@ def plot_2d_eig_ratio(surf_file, val_1='min_eig', val_2='max_eig', show=False):
     if show: plt.show()
 
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Plot 2D loss surface')
     parser.add_argument('--surf_file', '-f', default='', help='The h5 file that contains surface values')
@@ -191,7 +194,7 @@ if __name__ == '__main__':
     parser.add_argument('--vmax', default=10, type=float, help='Maximum value to map')
     parser.add_argument('--vmin', default=0.1, type=float, help='Miminum value to map')
     parser.add_argument('--vlevel', default=0.5, type=float, help='plot contours every vlevel')
-    parser.add_argument('--zlim', default=10, type=float, help='Maximum loss value to show')
+    parser.add_argument('--zlim', default=100, type=float, help='Maximum loss value to show')
     parser.add_argument('--show', action='store_true', default=False, help='show plots')
 
     args = parser.parse_args()
