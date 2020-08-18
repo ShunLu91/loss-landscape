@@ -14,6 +14,7 @@ import sys
 import numpy as np
 import torchvision
 import torch.nn as nn
+import torch.nn.functional as F
 import dataloader
 import evaluation
 import projection as proj
@@ -165,6 +166,11 @@ def crunch(surf_file, net, w, s, d, dataloader, loss_key, acc_key, comm, rank, a
             net_plotter.set_weights(net.module if args.ngpu > 1 else net, w, d, coord)
         elif args.dir_type == 'states':
             net_plotter.set_states(net.module if args.ngpu > 1 else net, s, d, coord)
+        elif args.dir_type == 'alpha':
+            net_plotter.set_alphas(net.module if args.ngpu > 1 else net, w, d, coord)
+            # print('***middle', F.softmax(net.alphas_normal, dim=1))
+            # print('***middle', F.softmax(net.alphas_reduce, dim=1))
+            # sys.exit()
 
         # Record the time to compute the loss value
         loss_start = time.time()
@@ -256,6 +262,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--exp', type=str, required=True, help='experiment name')
     parser.add_argument('--gpu', type=str, default=None, help='gpu device id')
+    parser.add_argument('--orthogonal', action='store_true', default=False, help='use orthogonal y-direction')
 
     args = parser.parse_args()
 
@@ -295,7 +302,11 @@ if __name__ == '__main__':
     # Load models and extract parameters
     #--------------------------------------------------------------------------
     net = model_loader.load(args.dataset, args.model, args.model_file)
-    w = net_plotter.get_weights(net) # initial parameters
+    if 'super' in args.model:
+        w = net._arch_parameters # initial parameters
+    else:
+        w = net_plotter.get_weights(net) # initial parameters
+
     s = copy.deepcopy(net.state_dict()) # deepcopy since state_dict are references
     if args.ngpu > 1:
         # data parallel with multiple GPUs on a single node

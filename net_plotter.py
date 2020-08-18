@@ -40,6 +40,29 @@ def set_weights(net, weights, directions=None, step=None):
             p.data = w + torch.Tensor(d).type(type(w))
 
 
+def set_alphas(net, weights, directions=None, step=None):
+    """
+        Overwrite the network's alphas with a specified list of tensors
+        or change weights along directions with a step size.
+    """
+    if directions is None:
+        # You cannot specify a step length without a direction.
+        for (p, w) in zip(net._arch_parameters(), weights):
+            p.data.copy_(w.data.type(type(p.data)))
+    else:
+        assert step is not None, 'If a direction is specified then step must be specified as well'
+
+        if len(directions) == 2:
+            dx = directions[0]
+            dy = directions[1]
+            changes = [d0*step[0] + d1*step[1] for (d0, d1) in zip(dx, dy)]
+        else:
+            changes = [d*step for d in directions[0]]
+
+        for (p, w, d) in zip(net._arch_parameters, weights, changes):
+            p.data = w.data + torch.Tensor(d).type(type(w.data))
+
+
 def set_states(net, states, directions=None, step=None):
     """
         Overwrite the network's state_dict or change it along directions with a step size.
@@ -280,6 +303,15 @@ def setup_direction(args, dir_file, net):
                 ydirection = create_target_direction(net, net3, args.dir_type)
             else:
                 ydirection = create_random_direction(net, args.dir_type, args.yignore, args.ynorm)
+                if args.orthogonal:
+                    norm = 0.
+                    inner_product = 0.
+                    for i, d in enumerate(xdirection):
+                        norm += (d * d).sum()
+                        inner_product += (d * ydirection[i]).sum()
+                    norm.sqrt_()
+                    for i, d in enumerate(xdirection): ydirection[i] = ydirection[i] - d * inner_product / norm
+
             h5_util.write_list(f, 'ydirection', ydirection)
 
     f.close()
