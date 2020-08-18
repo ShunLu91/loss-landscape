@@ -3,7 +3,7 @@ if [ ! -d logdir  ];then
 fi
 export HDF5_USE_FILE_LOCKING=FALSE
 export OMPI_MCA_opal_cuda_support=true
-
+#os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 #CUDA_VISIBLE_DEVICES=6,7 nohup mpirun -n 4 python plot_surface.py --mpi --cuda --model pp5 --x=-1:1:51 --y=-1:1:51 --model_file snapshots/pp5_best.pt \
 #--dir_type weights --xnorm filter --xignore biasbn --ynorm filter --yignore biasbn --plot > ./logdir/pp5_2d.log  2>&1 &
 
