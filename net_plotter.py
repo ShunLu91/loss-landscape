@@ -63,7 +63,7 @@ def set_alphas(net, weights, directions=None, step=None):
             print('p:', p.device)
             print('w:', p.device)
             print('d:', p.device)
-            p.data = w.data + torch.Tensor(d).type(type(w.data))
+            p.data = w.data + torch.Tensor(d).type(type(w.data).cuda())
 
 
 def set_states(net, states, directions=None, step=None):
