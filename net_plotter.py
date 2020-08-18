@@ -66,11 +66,11 @@ def set_alphas(net, weights, directions=None, step=None):
             # print('pd:', type(p.data))
             # print('wd:', type(w.data))
             # print('td:', type(torch.Tensor(d).type(type(w.data))))
-            print(p.data)
-            print(w.data)
-            print(torch.Tensor(d).type(type(w.data)).cuda())
+            print(p.cpu().data)
+            print(w.cpu().data)
+            print(torch.Tensor(d).type(type(w.data)))
             # p.data.copy_(w.data + torch.Tensor(d).type(type(w.data)))
-            p.data = w.data + torch.Tensor(d).type(type(w.data).cuda())
+            p.cpu().data = w.cpu().data + torch.Tensor(d).type(type(w.data))
 
 
 def set_states(net, states, directions=None, step=None):
